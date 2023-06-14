@@ -1,0 +1,59 @@
+{% extends 'flatpages/default.html' %}
+
+{% load censor_filter %}
+
+{% block title %}
+NewsPortal
+{% endblock title %}
+
+{% block content %}
+<h1>Всё самое интересное !!!</h1>
+<hr>
+<form action="" method="get">
+    {{ filterset.form.as_p }}
+    <input type="submit" value="Поиск">
+</form>
+<hr>
+
+{% if perms.News.add_post %}
+<a href="{% url 'nw_create' %}">Добавить новость</a>
+или
+<a href="{% url 'ar_create' %}">Добавить статью</a>
+{% endif %}
+
+{% for x in news %}
+<p><h4>{{ x.title|censor }}: {{ x.text|truncatechars:20 }}</h4>   <h6>{{ x.dateCreation }}</h6></p>
+
+{% if x.author == request.user.author %}
+<a href="{% url 'news_update' pk=x.id %}">Изменить</a>
+{% endif%}
+{% endfor %}
+
+<hr>
+
+{% if not is_author %}
+<button>
+    <a class="nav-link" href="{% url 'acc_upgrade' %}">
+        <h4><strong>Стать Автором</strong></h4>
+    </a>
+</button>
+{% endif %}
+
+
+<p>{% if page_obj.has_previous %}
+    <a href="?page=1">1</a>
+    {% if page_obj.previous_page_number != 1 %}
+        ...
+        <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+    {% endif %}
+{% endif %}
+{{ page_obj.number }}
+{% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+    {% if paginator.num_pages != page_obj.next_page_number %}
+        ...
+        <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+    {% endif %}
+{% endif %}</p>
+
+{% endblock content %}
